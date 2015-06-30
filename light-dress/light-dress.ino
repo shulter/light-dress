@@ -17,9 +17,9 @@
 //Rx16Response rx16 = Rx16Response();
 
 /* High Power LED BUCKPUCK Control pins */
-#define LED1  13
-#define LED2  11
-#define LED3  10
+#define LED1  3
+#define LED2  5
+#define LED3  6
 
 #define CONSOLE   Serial
 //#define XBEEUART  Serial2
@@ -32,7 +32,7 @@
 
 /* MAXBOTIX Analog pin */
 // #define MAXBOTIX  A12 //A12 for teensy
-#define MAXBOTIX  A0 // A0...7 for Arduino
+#define MAXBOTIX A3 // A0...7 for Arduino
 
 
 /* Zones:
@@ -109,8 +109,8 @@ static void do_animation(void)
 
   CONSOLE.print(".");
 
-  analogWrite(LED1, frame->led1);
-  analogWrite(LED2, frame->led2);
+  analogWrite(LED1, (255-(frame->led1))); // inverting the output by subtracting the frame values from 255 because the BuckPucks are active on LOW
+  analogWrite(LED2, (255-(frame->led2)));
   //TODO: implement third LED
   
   anim->frame_delay = frame->delay;
@@ -118,9 +118,9 @@ static void do_animation(void)
   
   if (++anim->frame >= anim->num_frames) {
     if (--anim->repeat <= 0) {
-      analogWrite(LED1, 0);
-      analogWrite(LED2, 0);
-      analogWrite(LED3, 0);
+      analogWrite(LED1, 255); // 255 -> LED off 
+      analogWrite(LED2, 255);
+      analogWrite(LED3, 255);
       set_next_state(STATE_ANIMATION_DONE);
     } else {
       CONSOLE.print("REPEAT: ");
@@ -257,7 +257,7 @@ void loop() {
       
     case STATE_XBEE_OVERRIDE_START:
       /* change animation.frames and animation.num_frames to the wanted animation frames structure */
-      animation.frames = (frameStc*)anim_xbee_override_frames;
+      animation.frames = (frameStc*) anim_xbee_override_frames;
       animation.num_frames = sizeof(anim_xbee_override_frames) / sizeof(frameStc);
       /***/
       animation.frame = 0;
